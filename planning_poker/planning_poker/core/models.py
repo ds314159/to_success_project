@@ -9,6 +9,34 @@ from django.utils.translation import gettext_lazy as _
 
 # Create your models here.
 class PokerSession(models.Model):
+    """
+    Un modèle représentant une session de poker pour la planification et l'estimation agile.
+
+    Attributs :
+        SESSION_MODE (enum): Une énumération pour les modes de session, avec les options 'STRICT' et 'MEDIUM'.
+        SESSION_STATUS (enum): Une énumération pour les statuts de la session, avec les options 'CREATED', 'STARTED' et 'FINISHED'.
+        players (IntegerField): Le nombre de participants à la session.
+        owner (ForeignKey): Référence à l'utilisateur propriétaire de la session.
+        feature_field_name (CharField): Le nom du champ dans le backlog qui désigne les fonctionnalités.
+        product_backlog (TextField): Le backlog produit sous format texte.
+        product_backlog_file (FileField): Un champ de téléchargement de fichier pour le backlog produit.
+        mode (CharField): Le mode de la session, choisi parmi les options de SESSION_MODE.
+        status (CharField): Le statut actuel de la session, choisi parmi les options de SESSION_STATUS.
+        created_at (DateTimeField): La date et l'heure de création de la session, définies automatiquement.
+        result_file (FileField): Un champ facultatif pour télécharger le fichier de résultat de la session.
+
+    Méthodes :
+        get_result_file: Retourne l'URL du fichier de résultat, si disponible.
+        get_result_file_name: Retourne le nom du fichier de résultat, si disponible.
+        can_start: Vérifie si la session peut commencer en fonction du nombre de participants.
+        tours_reverse: Retourne les objets 'tours' associés dans l'ordre inverse.
+        gen_features: Génère des objets de fonctionnalité à partir du fichier de backlog produit.
+        get_next_feature: Récupère la prochaine fonctionnalité qui n'a pas encore été votée.
+        get_previous_features: Récupère les fonctionnalités qui ont déjà été votées.
+        update_status: Met à jour le statut de la session en fonction des fonctionnalités restantes.
+        save: Méthode save surchargée pour charger le backlog produit à partir d'un fichier avant de sauvegarder.
+    """
+
     class SESSION_MODE(models.TextChoices):
         STRICT = "strict", _("Strict")
         MEDIUM = "medium", _("Moyen")
@@ -18,6 +46,7 @@ class PokerSession(models.Model):
         CREATED = "created", _("Créée")
         STARTED = "started", _("Commencée")
         FINISHED = "finished", _("Terminée")
+
     players = models.IntegerField(default=1, verbose_name="Participants")
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="poker_sessions")
     feature_field_name = models.CharField(max_length=50, default="items", verbose_name="Nom du champ des features")
@@ -82,6 +111,30 @@ class PokerSession(models.Model):
 
 
 class Feature(models.Model):
+    """
+        Un modèle représentant une fonctionnalité (feature) dans une session de poker pour la planification agile.
+
+        Attributs :
+            poker_session (ForeignKey): Référence à la session de poker à laquelle appartient cette fonctionnalité.
+            title (CharField): Le titre de la fonctionnalité.
+            description (TextField): La description de la fonctionnalité.
+            story_points (IntegerField): Les points d'histoire estimés pour la fonctionnalité.
+            voted (BooleanField): Un indicateur pour savoir si un vote a été effectué pour cette fonctionnalité.
+
+        Méthodes :
+            __str__: Retourne le titre de la fonctionnalité.
+            tours_reverse: Retourne les objets 'tours' associés dans l'ordre inverse.
+            is_consensus: Vérifie s'il y a consensus dans les votes du dernier tour.
+            is_completed: Vérifie si tous les participants ont voté pour le dernier tour.
+            is_validated: Vérifie si la fonctionnalité est validée (consensus et complétude).
+            is_started: Vérifie si au moins un vote a été effectué pour cette fonctionnalité.
+            check_votes: Vérifie les votes selon le mode de la session de poker.
+            get_next_feature: Récupère la prochaine fonctionnalité non votée dans la session.
+            get_previous_features: Récupère les fonctionnalités précédemment votées dans la session.
+            get_last_tour: Récupère le dernier tour de votes pour cette fonctionnalité.
+            set_next_tour: Crée et sauvegarde un nouveau tour de vote pour cette fonctionnalité.
+        """
+
     poker_session = models.ForeignKey(PokerSession, on_delete=models.CASCADE, related_name="features")
     title = models.CharField(max_length=100)
     description = models.TextField(default="")
@@ -136,6 +189,24 @@ class Feature(models.Model):
 
 
 class Participant(models.Model):
+    """
+        Un modèle représentant un participant à une session de poker agile.
+
+        Cette classe crée une relation entre une session de poker (`PokerSession`) et un utilisateur (`user`),
+        permettant de suivre quels utilisateurs participent à quelles sessions de poker.
+
+        Attributs :
+            poker_session (ForeignKey): Référence à la session de poker à laquelle le participant est lié.
+            user (ForeignKey): Référence à l'utilisateur qui est le participant.
+
+        Meta :
+            unique_together: Assure qu'une paire (poker_session, user) soit unique dans la base de données,
+                             évitant ainsi les doublons de participants dans une même session.
+
+        Méthodes :
+            __str__: Retourne le nom d'utilisateur du participant.
+        """
+
     class Meta:
         unique_together = ("poker_session", "user")
 
@@ -147,6 +218,25 @@ class Participant(models.Model):
 
 
 class Vote(models.Model):
+    """
+        Un modèle représentant un vote dans une session de poker agile.
+
+        Ce modèle permet de capturer les détails d'un vote effectué par un participant sur une fonctionnalité
+        spécifique lors d'un tour donné dans une session de poker.
+
+        Attributs :
+            poker_session (ForeignKey): Référence à la session de poker à laquelle le vote est associé.
+            feature (ForeignKey): Référence à la fonctionnalité pour laquelle le vote est effectué.
+            voter (ForeignKey): Référence au participant qui effectue le vote.
+            vote (IntegerField): La valeur du vote.
+            tour (ForeignKey): Référence au tour spécifique de la session de poker durant lequel le vote est effectué.
+            cafe (BooleanField): Indicateur si le vote est un vote 'café' (pause ou besoin de réflexion supplémentaire).
+            interro (BooleanField): Indicateur si le vote est un vote 'interrogation' (incertitude ou question).
+
+        Méthodes :
+            __str__: Retourne une représentation en chaîne du vote, typiquement le nom du participant et la valeur du vote.
+    """
+
     poker_session = models.ForeignKey(PokerSession, on_delete=models.CASCADE, related_name="votes")
     feature = models.ForeignKey(Feature, on_delete=models.CASCADE, related_name="votes")
     voter = models.ForeignKey(Participant, on_delete=models.CASCADE, related_name="votes")
@@ -157,6 +247,21 @@ class Vote(models.Model):
 
 
 class Tour(models.Model):
+    """
+        Un modèle représentant un tour dans une session de poker agile.
+
+        Ce modèle est utilisé pour suivre les différents tours de votes qui ont lieu pour chaque fonctionnalité
+        au sein d'une session de poker. Chaque tour peut avoir plusieurs votes associés à différentes fonctionnalités.
+
+        Attributs :
+            poker_session (ForeignKey): Référence à la session de poker à laquelle le tour est associé.
+            feature (ForeignKey): Référence à la fonctionnalité pour laquelle le tour est effectué.
+            designation (IntegerField): Un numéro de séquence pour le tour, par défaut à 1.
+
+        Méthodes :
+            save: Surcharge de la méthode save pour assurer la logique métier spécifique au tour.
+    """
+
     poker_session = models.ForeignKey(PokerSession, on_delete=models.CASCADE, related_name="tours")
     feature = models.ForeignKey(Feature, on_delete=models.CASCADE, related_name="tours")
     designation = models.IntegerField(default=1)
@@ -171,6 +276,22 @@ class Tour(models.Model):
 
 
 class Messages(models.Model):
+    """
+        Un modèle représentant un message dans une session de poker agile.
+
+        Ce modèle est utilisé pour stocker les messages envoyés par les participants pendant une session de poker.
+        Il permet une communication entre les participants dans le contexte de la session.
+
+        Attributs :
+            poker_session (ForeignKey): Référence à la session de poker à laquelle le message est associé.
+            sender (ForeignKey): Référence au participant qui a envoyé le message.
+            message (TextField): Le contenu du message.
+            created_at (DateTimeField): La date et l'heure de création du message, définies automatiquement.
+
+        Méthodes :
+            __str__: Retourne un extrait du message pour une représentation en chaîne.
+    """
+
     poker_session = models.ForeignKey(PokerSession, on_delete=models.CASCADE, related_name="messages")
     sender = models.ForeignKey(Participant, on_delete=models.CASCADE, related_name="messages")
     message = models.TextField()

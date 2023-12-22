@@ -1,63 +1,90 @@
-from django.test import RequestFactory, TestCase
-from django.contrib.auth.models import User
+from django.test import TestCase, Client
+from django.urls import reverse
+from planning_poker.users.models import User
+from planning_poker.core.models import PokerSession, Participant
+from django.conf import settings
 
-from planning_poker.core.views import vote, create_poker_session, join_poker_session
 
+class PlanningPokerTest(TestCase):
 
-class VoteTestCase(TestCase):
     def setUp(self):
-        self.factory = RequestFactory()
-        self.user = User.objects.last()
-        self.poker_session_id = 1
-        self.card = "5"
+        self.client = Client()
+        self.user = User.objects.create_user(username='testuser', password='12345')
+        self.client.login(username='testuser', password='12345')
+        self.players = 1
+        # self.poker_session_id = 1
+        self.back_log_file = settings.MEDIA_ROOT + '/files/backlog.json'
+        # self.poker_session = PokerSession.objects.create(
+        #     players=self.players,
+        #     owner=self.user,
+        #     product_backlog_file=settings.MEDIA_ROOT + '/files/backlog.json'
+        # )
+        self.join_poker_session_url = reverse('core:join_poker_session')
 
-    def test_vote(self):
-        request = self.factory.get('/')
-        request.user = self.user
-        response = vote(request, self.poker_session_id, self.card)
-        self.assertEqual(response.status_code, 302)  # Check that the response is a redirect
-        self.assertRedirects(response,
-                             f"/core/poker_session/{self.poker_session_id}/")  # Check that the redirect is to the correct page
+    def create_poker_session(self):
+        poker_session, created = PokerSession.objects.get_or_create(
+            players=self.players,
+            owner=self.user,
+            product_backlog_file=self.back_log_file
+        )
 
-
-class CreatePokerSessionTestCase(TestCase):
-    def setUp(self):
-        self.factory = RequestFactory()
-        self.user =User.objects.last()
-        self.valid_data = {
-            # Fill in with valid data for the PokerSessionForm
-        }
-        self.invalid_data = {
-            # Fill in with invalid data for the PokerSessionForm
-        }
-
-    def test_create_poker_session_valid_data(self):
-        request = self.factory.post('/', data=self.valid_data)
-        request.user = self.user
-        response = create_poker_session(request)
-        self.assertEqual(response.status_code, 302)  # Check that the response is a redirect
-        self.assertRedirects(response, "/core/home/")  # Check that the redirect goes to the correct URL
-        # Add more assertions to test the behavior of the function
-
-    def test_create_poker_session_invalid_data(self):
-        request = self.factory.post('/', data=self.invalid_data)
-        request.user = self.user
-        response = create_poker_session(request)
-        self.assertEqual(response.status_code, 302)  # Check that the response is a redirect
-        self.assertRedirects(response, "/core/home/")  # Check that the redirect goes to the correct URL
-        # Add more assertions to test the behavior of the function
-
-
-class JoinPokerSessionTestCase(TestCase):
-    def setUp(self):
-        self.factory = RequestFactory()
-        self.user = User.objects.create_user(username='testuser', password='testpassword')
-        self.poker_session_id = 1
+        self.assertTrue(created)
 
     def test_join_poker_session(self):
-        request = self.factory.post('/', {'session_id': self.poker_session_id})
-        request.user = self.user
-        response = join_poker_session(request)
-        self.assertEqual(response.status_code, 302)  # Check that the response is a redirect
-        self.assertRedirects(response, f"/core/poker_session/{self.poker_session_id}/")  # Check that the redirect goes to the correct URL
-        # Add more assertions to test the behavior of the function
+        # Données à envoyer via POST
+        poker_session, created = PokerSession.objects.get_or_create(
+            players=self.players,
+            owner=self.user,
+            product_backlog_file=self.back_log_file
+        )
+        data = {'session_id': poker_session.pk}
+
+        # Simule un POST request pour rejoindre la session de poker
+        response = self.client.post(self.join_poker_session_url, data)
+
+        # Vérifier la redirection
+        self.assertEqual(response.status_code, 302)
+
+        # Vérifier que l'utilisateur a été ajouté en tant que participant
+        self.assertEqual(poker_session.participants.count(), 1)
+        self.assertTrue(poker_session.participants.filter(user=self.user).exists())
+
+    def test_join_full_poker_session(self):
+        poker_session, created = PokerSession.objects.get_or_create(
+            players=self.players,
+            owner=self.user,
+            product_backlog_file=self.back_log_file
+        )
+        # Ajouter des participants à la session jusqu'à atteindre la limite
+        for i in range(poker_session.players):
+            user = User.objects.create_user(username=f'user{i}', password='12345')
+            Participant.objects.create(poker_session=poker_session, user=user)
+
+        # Tenter de rejoindre une session complète
+        data = {'session_id': poker_session.pk}
+        response = self.client.post(self.join_poker_session_url, data)
+
+        # Vérifier que le nombre de participants n'a pas changé
+        self.assertEqual(poker_session.participants.count(), poker_session.players)
+
+    # def test_vote_poker_session(self):
+    #     # Créer une session de poker
+    #
+    #     poker_session, created = PokerSession.objects.get_or_create(
+    #         players=self.players,
+    #         owner=self.user,
+    #         product_backlog_file=self.back_log_file
+    #     )
+    #     # Rejoindre la session de poker
+    #     self.client.post(self.join_poker_session_url, {'session_id': poker_session.pk})
+    #
+    #     # Voter pour une fonctionnalité
+    #     vote_url = reverse('core:vote', kwargs={'poker_session_id': poker_session.pk, 'card': '100'})
+    #     response = self.client.get(vote_url)
+    #
+    #     # Vérifier la redirection
+    #     self.assertEqual(response.status_code, 302)
+    #
+    #     # Vérifier que le vote a été pris en compte
+    #     participant = Participant.objects.get(poker_session=poker_session, user=self.user)
+    #     self.assertTrue(participant.votes.filter(vote=100).exists())
