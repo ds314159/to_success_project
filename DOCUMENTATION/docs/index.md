@@ -1,3 +1,8 @@
-# **Bienvenu sur Planning Poker**
 
-Planning Poker est une application web qui permets de créer ou de participer à des sessions de Planning Poker
+
+# **Bienvenue sur Planning Poker**
+
+Planning Poker est une application web, dont la réalisation a permis de mettre en application 
+les principes de la gestion de projets informatiques.
+
+ Merci et Bonne visite.

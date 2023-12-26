@@ -4,7 +4,7 @@
 
 ### PokerSession
 
-Un modèle représentant une session de poker pour la planification et l'estimation agile.
+Un modèle représentant une session de scrum poker.
 
 #### Attributs
 
@@ -107,16 +107,16 @@ Rendu de la page d'accueil pour l'utilisateur connecté.
 @login_required
 def home(request):
     """
-    Renders the home page for the logged-in user.
+    Affiche la page d'accueil pour l'utilisateur connecté.
 
-    Parameters:
-        request (HttpRequest): The HTTP request object.
+    Paramètres :
+        request (HttpRequest) : L'objet de requête HTTP.
 
-    Returns:
-        HttpResponse: The rendered home page.
+    Retourne :
+        HttpResponse : La page d'accueil rendue.
 
-    Raises:
-        None
+    Raise :
+        None """
 ```
 
 ### create_session
@@ -126,26 +126,27 @@ def home(request):
 @login_required
 def create_poker_session(request):
     """
-    Creates a poker session.
+    Crée une session de poker.
 
-    This function is responsible for creating a poker session based on the data provided in the request.
-    It performs the following steps:
-    1. Validates the data provided in the request.
-    2. If the data is valid, it creates a new poker session with the current user as the owner.
-    3. Generates the features for the created poker session.
-    4. Creates a participant for the current user in the poker session.
-    5. Displays a success or error message using sweetify.toast.
-    6. Redirects the user to the home page.
+    Cette fonction est responsable de la création d'une session de poker en fonction des données fournies dans la requête.
+    Elle effectue les étapes suivantes :
+    1. Valide les données fournies dans la requête.
+    2. Si les données sont valides, elle crée une nouvelle session de poker avec l'utilisateur actuel comme propriétaire.
+    3. Génère les caractéristiques pour la session de poker créée.
+    4. Crée un participant pour l'utilisateur actuel dans la session de poker.
+    5. Affiche un message de succès ou d'erreur en utilisant sweetify.toast.
+    6. Redirige l'utilisateur vers la page d'accueil.
 
-    Parameters:
-    - request: The HTTP request object containing the data for creating the poker session.
+    Paramètres :
+    - request : L'objet de requête HTTP contenant les données pour la création de la session de poker.
 
-    Returns:
-    - A redirect response to the home page.
+    Retourne :
+    - Une réponse de redirection vers la page d'accueil.
 
-    Raises:
-    - N/A
+    Raise :
+    - N/A (Non Applicable)
     """
+
 ```
 
 ### poker_session
@@ -153,15 +154,16 @@ def create_poker_session(request):
 ```python
 def poker_session(request, pk):
     """
-    Retrieves a poker session using the provided primary key and performs various operations on it.
+    Récupère une session de poker en utilisant la clé primaire fournie et effectue diverses opérations dessus.
 
-    Args:
-        request: The HTTP request object.
-        pk: The primary key of the poker session to retrieve.
+    Arguments :
+        request : L'objet de requête HTTP.
+        pk : La clé primaire de la session de poker à récupérer.
 
-    Returns:
-        A rendered HTML template with the poker session, its features, and participants.
+    Retourne :
+        Un template HTML rendu avec la session de poker, ses caractéristiques et ses participants.
     """
+
 
 ```
 
@@ -171,13 +173,14 @@ def poker_session(request, pk):
 @require_POST
 def join_poker_session(request):
     """
-    Join a poker session.
+    Rejoint une session de poker.
 
-    Args:
-        request (HttpRequest): The HTTP request object.
+    Arguments :
+        request (HttpRequest) : L'objet de requête HTTP.
 
-    Returns:
-        HttpResponseRedirect: A redirect to the poker session page.
+    Retourne :
+        HttpResponseRedirect : Une redirection vers la page de la session de poker.
     """
+
 
 ```

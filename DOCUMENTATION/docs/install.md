@@ -41,7 +41,7 @@ python -m pip install -r requirements/production.txt
 
 en fonction de l'environnement.
 
-5. Lancez le serveur.
+5. Lancer le serveur.
 
 ``` bash
 python manage.py runserver

@@ -4,7 +4,7 @@
 {% block content %}
   <div class="container-fluid">
     <div class="row">
-      <h1 class="text-success">Session de planning poker #{{ poker_session.id }}</h1>
+      <h1 class="text-success">Session de planning poker numéro : {{ poker_session.id }}</h1>
       <h5>Mode : <small class="text-muted">{{ poker_session.get_mode_display }}</small></h5>
       <h5>Statut : <small class="text-muted">{{ poker_session.get_status_display }}</small></h5>
     </div>

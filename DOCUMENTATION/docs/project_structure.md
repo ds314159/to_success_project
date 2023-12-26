@@ -8,13 +8,12 @@ Le projet "Planning Poker" est une application organisée de manière à facilit
 - **`LICENSE`** : Détaille la licence sous laquelle le projet est distribué.
 - **`CONTRIBUTORS.txt`** : Liste des personnes ayant contribué au projet.
 - **`manage.py`** : Script utilitaire pour gérer diverses tâches du projet, typique des applications Django.
-- **`database.json, db.sqlite3`** : Fichiers liés à la base de données du projet.
+- **`db.sqlite3`** : La base de données du projet.
 - **`pyproject.toml, setup.cfg`** : Fichiers de configuration pour la gestion des dépendances et du projet.
 - **`requirements`** : Dossier contenant les fichiers de dépendances Python nécessaires au projet.
 - **`config`** : Dossier contenant les fichiers de configuration du projet.
 - **`planning_poker`** : Dossier principal contenant le code et la logique métier.
 - **`utility`** :   Dossier contenant des scripts ou des utilitaires supplémentaires pour le projet.
-- **`docs`** : Contient la documentation du projet, pouvant être utilisée pour générer des pages web via des outils comme Sphinx.
 
 - **`locale`** : Dossiers pour les fichiers de localisation, permettant la prise en charge de plusieurs langues.
 
@@ -35,27 +34,19 @@ Le sous-dossier suit une structure typique d'une application web, basée sur le 
 
 #### Dossiers de l'Application
 
-1. **`contrib`**:
-   - Contient des modules ou packages complémentaires au projet.
-2. **`core`**:
-   - Le cœur de l'application, incluant la logique métier principale et les modèles.
-3. **`users`**:
-   - Gère tout ce qui est relatif aux utilisateurs de l'application.
-4. **`utils`**:
-   - Fonctions utilitaires et helpers utilisés à travers l'application.
+1. **`contrib`**: Contient des modules ou packages complémentaires au projet.
+2. **`core`**: Le cœur de l'application, incluant la logique métier principale et les modèles.
+3. **`users`**: Gère tout ce qui est relatif aux utilisateurs de l'application.
+4. **`utils`**: Fonctions utilitaires et helpers utilisés à travers l'application.
 
 #### Ressources et Fichiers Statiques
 
-1. **`media`**:
-   - Dossier pour les fichiers médias uploadés ou utilisés dans l'application.
-        - **`files`**:
-            - Dossier pour les backlogs uploadé par les utilisateurs.
-        - **`backlogs`**:
-            - Dossier pour le résultat des backlogs en JSON à chaque fin de partie.
-2. **`static`**:
-   - Contient les fichiers statiques comme les CSS, JavaScript, et images.
-3. **`templates`**:
-   - Templates HTML pour la génération des pages web.
+1. **`media`**: Dossier pour les fichiers médias uploadés ou utilisés dans l'application.
+
+2. **`media/files`**: Dossier pour les backlogs uploadé par les utilisateurs.
+3. **`media/backlogs`**: Dossier pour le résultat des backlogs en JSON à chaque fin de partie.
+4. **`static`**: Contient les fichiers statiques comme les CSS, JavaScript, et images.
+3. **`templates`**: Templates HTML pour la génération des pages web.
 
 #### Dossiers de Cache
 

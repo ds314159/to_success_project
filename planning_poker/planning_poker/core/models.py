@@ -39,7 +39,7 @@ class PokerSession(models.Model):
 
     class SESSION_MODE(models.TextChoices):
         STRICT = "strict", _("Strict")
-        MEDIUM = "medium", _("Moyen")
+        MEDIUM = "medium", _("Moyenne")
         # MEDIAN = "median", _("Median")
 
     class SESSION_STATUS(models.TextChoices):

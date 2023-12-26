@@ -32,10 +32,10 @@ sur votre console (adresse locale + numéro canal de type http://127.0.0.1:2024)
 
 ### Installer les pré-requis et lancer le site de la documentation
 
-- Nous sommes dans "/to_success_project/planning_poker", allons dans le repertoire voisin "DOCUMENTATION":
+- Ouvrir une autre fenêtre de terminal,  Nous sommes dans "/to_success_project", allons dans le repertoire "DOCUMENTATION":
 
 
-              $ cd ../DOCUMENTATION
+              $ cd DOCUMENTATION
 - Installer mkdocs, ainsi qu'un thème :
 
               $ pip install mkdocs
@@ -128,8 +128,11 @@ Le numéro d'identification de la partie sert de référence.
 
 ### Jouer :
 
-Quand un joueur valide un id de partie valide, la page de la partie du jeu s'affiche pour lui.
-Quand tous les joueurs rejoignent la parti, il est possible de commencer à jouer :
+Quand un joueur valide un id de partie valide, la page de la partie du jeu s'affiche pour lui. 
+À noter que la page ne sera interactive et que les cartes ne s'afficheront que quand 
+tous les joueurs rejoignent la partie. Penser à rafraichir votre page quand l'autre joueur aura rejoint, 
+ça lancera le mode interactif.
+Maintenant il est possible de commencer à jouer :
 
 - Les fonctionnalités seront présentées successivement, 
 il faut valider l'estimation d'une fonctionnalité pour que la suivante s'affiche.
@@ -146,6 +149,7 @@ il est possible de la reprendre en reprenant la voie "rejoindre une partie" et e
 quand les joueurs se remettent à voter.
 
 
+
 - Quand une partie est finalisée, c'est-à-dire que toutes les fonctionnalités ont été votées, 
 son fichier json est enregistré dans le dossier to_success_project/planning_poker/planning_poker/media/backlogs.
 
@@ -153,60 +157,42 @@ son fichier json est enregistré dans le dossier to_success_project/planning_pok
 - Il est toujours possible de consulter une partie finie avec son id, mais il est 
 impossible d'en modifier les caractéristiques.
 
-
-
-
-
-
-
-
+##
+##
+## Tests :
 
 
 ##
-##
-##
-##
+### Tests unitaire:
+- Exécuter Automatiquement les tests unitaires 
 
+      $ pytest
 
+### Tests de Type:
+- Analyser les fichiers Python dans le dossier planning_poker (et ses sous-dossiers) pour vérifier les annotations de type:
 
+      $ mypy planning_poker
 
-## Settings
+### Obtenir des rapports de couverture des tests :
 
-Moved to [settings](http://cookiecutter-django.readthedocs.io/en/latest/settings.html).
+- Exécuter les tests, vérifier la couverture et générer un rapport de couverture en HTML, attention différence de commande OS/Windows:
 
-## 
-
-### Setting Up Your Users
-
-- To create a **normal user account**, just go to Sign Up and fill out the form. Once you submit it, you'll see a "Verify Your E-mail Address" page. Go to your console to see a simulated email verification message. Copy the link into your browser. Now the user's email should be verified and ready to go.
-
-- To create a **superuser account**, use this command:
-
-      $ python manage.py createsuperuser
-
-For convenience, you can keep your normal user logged in on Chrome and your superuser logged in on Firefox (or similar), so that you can see how the site behaves for both kinds of users.
-
-### Type checks
-
-Running type checks with mypy:
-
-    $ mypy planning_poker
-
-### Test coverage
-
-To run the tests, check your test coverage, and generate an HTML coverage report:
+Sous Mac OS
 
     $ coverage run -m pytest
     $ coverage html
     $ open htmlcov/index.html
 
-#### Running tests with pytest
+Sous Windows
 
-    $ pytest
+    $ coverage run -m pytest
+    $ coverage html
+    $ start htmlcov/index.html
 
 
-## Run this project in your local machine
-By default, the project run on port 8000  and is configured to use a SQLite database. If you want to use PostgreSQL, you'll need to install it and configure in config/settings/base.py
-```bash
-python manage.py runserver 0.0.0.0:8000
-```
+
+
+
+
+
+
